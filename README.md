@@ -10,7 +10,6 @@ Workflow para construir produtos de dados do programa Monitora, protocolo TEAM
 │   ├───01_aggregate_raw_data_sources
 │   ├───02_check_data_consistency
 │   ├───03_check_taxonomy
-│   └───funcoes
 ├───R
 └───output
 ```
