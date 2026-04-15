@@ -4,6 +4,10 @@ library(here)
 library(tidyverse)
 
 
+#----- load functions
+source(here("R", "filter_independent.R"))
+
+
 #----- read data
 
 # projects
@@ -31,3 +35,14 @@ images <- read_csv(images_files) %>%
   filter(! is.na(genus)) %>%
   print()
 
+
+#----- filter independent events
+images <- filter_independent(images, 60) %>%
+  print()
+
+# save aggregated data
+raw_data_bundle <- list(projects=projects,
+                   deployments=deployments,
+                   images=images)
+saveRDS(raw_data_bundle, here("output", "raw_data_bundle.rds"))
+       
