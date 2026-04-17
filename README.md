@@ -1,10 +1,6 @@
 # monitora-team-pipelines
 Workflow para construir produtos de dados do programa Monitora, protocolo TEAM
 
-Testando branch e pull request
-Novo teste 2
-
-
 ## ESTRUTURA DO DIRETÓRIO
 
 ``` bash
