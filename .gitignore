@@ -7,3 +7,5 @@
 *.csv
 *.xlsx
 github-token.R
+.positai
+bin/
