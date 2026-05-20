@@ -6,7 +6,6 @@ rm(list=ls())
 #----- load libraries
 library(here)
 library(tidyverse)
-library(leaflet)
 
 
 #----- load functions
@@ -944,7 +943,9 @@ images <- images %>%
 
 
 
+
 #----- update deployments based on corrected dates
+
 
 # note: lets also remove projects that have only one year of data as well as
 # projects with too many problems in dates
@@ -962,13 +963,15 @@ images <- images %>%
   print()
 
 
-# crop any photos outside range of start and end dates
+
+#----- crop any photos outside range of start and end dates
 images <- images %>%
   filter(photo_date >= start_date,
          photo_date <= end_date) %>%
   print()
 
-# update deployments start and end dates using the images updates
+
+#----- update deployments start and end dates using the images updates
 deployments <- deployments %>%
   select(-c(start_date, end_date)) %>%
   left_join(images %>%
@@ -976,10 +979,20 @@ deployments <- deployments %>%
             by = "deployment_id") %>%
   #filter(deployment_id %in% images$deployment_id) %>%
   print()
+
+
+#----- remove deployments with < 5 days sampling
+deployments <- deployments %>%
+  filter(difftime(end_date, start_date, units = "days") >= 5) %>%
+  print()
+
+images <- images %>%
+  filter(deployment_id %in% deployments$deployment_id) %>%
+  print()
   
 
 
-# save aggregated data
+#----- save aggregated data
 data_fixed_dates <- list(projects=projects,
                          deployments=deployments,
                          images=images)
