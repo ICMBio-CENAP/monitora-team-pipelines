@@ -1,5 +1,7 @@
 # monitora-team-pipelines
-Workflow para construir produtos de dados do programa Monitora, protocolo TEAM
+Workflow para construir produtos de dados do programa Monitora, protocolo TEAM. O principal objetivo desse workflow é transformar os dados do programa Monitora em Variáveis Essenciais de Biodiversidade - EBVs. EBVs são medidas padronizadas usadas para monitorar e relatar mudanças na biodiversidade global. Eles atuam como camada intermediária entre os dados brutos obtidos em campo, e indicadores agregados de biodiversidade [Kissling et al. 2017]([https://github.com/elildojr/Wildlife-Insights---Analytics](https://onlinelibrary.wiley.com/doi/full/10.1111/brv.12359)).
+
+Primeiramente, os dados passam por um controle de qualidade rudimentar, visando garantir sua consistência em termos de formatos de tempo, coordenadas espaciais e taxonomia, de forma a transforma-los em dados utilizáveis para EBV ("EBV-usable data sets"). Em seguida, os dados são modelados para gerar dados compatíveis com EBV ("EBV-ready data"), passíveis de uso na produção de índices agregados de tendências de biodiversidade.
 
 
 ## Estrutura do diretório
