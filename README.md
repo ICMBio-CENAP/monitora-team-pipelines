@@ -2,7 +2,7 @@
 Workflow para construir produtos de dados do programa Monitora, protocolo TEAM
 
 
-## ESTRUTURA DO DIRETÓRIO
+## Estrutura do diretório
 
 ``` bash
 ├───input
@@ -15,12 +15,12 @@ Workflow para construir produtos de dados do programa Monitora, protocolo TEAM
 └───output
 ```
 
-## NOTA AOS COLABORADORES
+## Nota aos colaboradores
 
 Para todas as funções, nomes de objetos, etc, usar o [Tidyverse style guide](https://style.tidyverse.org/)
 Criar novos branches para modificações
 
-## WORKFLOW
+## Workflow
 
 Agregação dos dados brutos, baixados diretamente da plataforma [Wildlife Insights](https://app.wildlifeinsights.org)
 
