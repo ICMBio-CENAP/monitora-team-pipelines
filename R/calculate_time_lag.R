@@ -12,16 +12,10 @@
 
 calculate_time_lag <- function(df, year) {
   
-  temp_deployment <- deployments %>%
-    filter(project_id == df, year(start_date) == year) %>%
-    distinct(deployment_id, start_date, end_date)
-  
   temp_images <- images %>%
-    filter(deployment_id %in% temp_deployment$deployment_id) %>%
-    distinct(deployment_id,timestamp) %>%
-    mutate(photo_date = as.Date(timestamp))
+    filter(project_id == df, year(start_date) == year)
   
-  lags <- left_join(temp_images, temp_deployment, by = "deployment_id") %>%
+  lags <- temp_images %>%
     group_by(deployment_id) %>%
     filter(photo_date == max(photo_date) | photo_date == min(photo_date)) %>%
     mutate(diff_start = as.numeric(difftime(photo_date, start_date, units = "days")),
