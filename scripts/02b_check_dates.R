@@ -977,7 +977,13 @@ deployments <- deployments %>%
   left_join(images %>%
               distinct(deployment_id, start_date, end_date),
             by = "deployment_id") %>%
-  #filter(deployment_id %in% images$deployment_id) %>%
+  filter(deployment_id %in% images$deployment_id) %>%
+  print()
+
+# remove start_date and end_date from images
+# now that we updated them we can keep them only in deployments
+images <- images %>%
+  select(-c(start_date, end_date)) %>%
   print()
 
 
