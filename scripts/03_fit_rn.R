@@ -1,0 +1,185 @@
+
+# clean environment
+rm(list=ls())
+
+
+#----- load libraries
+library(here)
+library(tidyverse)
+library(jagsUI)
+
+# read pre-processed data
+rn_data_2002545 <- readRDS(here("output","rn_data_2002545.rds"))
+
+# teste para ver se roda
+# sera preciso corrigir o script anterior porque obs 9188 tem dois sucessos e uma tentativa
+rn_data_2002545 <- rn_data_2002545[1:9000,]
+
+site <- as.numeric(dense_rank(rn_data_2002545$placename))
+species <- as.numeric(dense_rank(rn_data_2002545$species))
+year <- as.numeric(dense_rank(rn_data_2002545$sampling_event))
+trials <- as.numeric(rn_data_2002545$trials)
+y <- as.numeric(rn_data_2002545$y)
+
+rm(rn_data_2002545)
+
+# bundle data
+jags_data = list(site = site,
+                 nsite = length(unique(site)),
+                 species = species,
+                 nsp = length(unique(species)),
+                 year = year,
+                 nyear = length(unique(year)),
+                 nobs = length(y),
+                 trials = trials,
+                 y = y)
+
+
+##----- Specify model in JAGS language -----
+# dynamic N-occupancy model adapted from Rossman et al 2016
+# potential source for improving codes:
+# https://github.com/zipkinlab/Farr_etal_2022_ConsBiol/blob/master/DataAnalysis/CaseStudy/Model.R
+
+sink(here("scripts", "rn_model.txt"))
+cat("
+model {
+  
+  
+  ## Priors
+  
+  ## community-level priors
+    
+    # abundance intercept
+    mu.alpha0 ~ dunif(-10,10)
+    sd.alpha0 ~ dunif(0,2)
+    tau.alpha0 <- 1/(sd.alpha0*sd.alpha0)
+    
+    # time effect
+    mu.alpha1 ~ dunif(-10,10)
+    sd.alpha1 ~ dunif(0,2)
+    tau.alpha1 <- 1/(sd.alpha1*sd.alpha1)
+    
+    # detection
+    mu.r ~ dunif(-2,2)
+    sd.r ~ dunif(0,2)
+    tau.r <- 1/(sd.r*sd.r)
+    
+
+  ## species-level priors
+    
+    for(i in 1:nsp){
+    
+      # average species abundance
+      alpha0.sp[i] ~ dnorm(mu.alpha0,tau.alpha0)
+      
+      # time effect
+      alpha1.sp[i] ~ dnorm(mu.alpha1,tau.alpha0)
+      
+      # average species detection
+      r.sp[i] ~ dnorm(mu.r,tau.r)
+      logit(r[i]) <- r.sp[i]
+      
+    }#i
+
+  ## Likelihood
+
+  for(i in 1:nsp){
+   for(j in 1:nsite){
+    for(k in 1:nyear){
+  
+    # abundance
+    log(lambda[i,j,k]) <- alpha0.sp[i] + alpha1.sp[i]*year[k]
+    N[i,j,k] ~ dpois(lambda[i,j,k])
+    
+      }#k
+    }#j
+  }#i
+    
+    
+  ## detection model
+    for(i in 1:nobs){
+
+        p[species[i],site[i],year[i]] <- 1-pow(1-r[species[i]], N[ species[i],site[i],year[i] ])
+        y[i] ~ dbin(p[species[i],site[i],year[i]], trials[i])
+        
+        }#i
+
+    
+    # derived parameters
+    # PA-level population abundance per year
+    for(i in 1:nsp){
+      for (k in 1:nyear){
+        Nhat[i,k] <- sum(N[i,1:nsite,k])
+      }#t
+    #for (k in 2:nyear){
+    #  growth_rate[i,k] <- Nhat[i,k]/(Nhat[i,k-1])
+    #}#k
+      
+    }#i
+
+
+}",fill=TRUE)
+sink()
+
+
+##----- fit model -----#
+
+
+parameters <- c("r", "p",  "N", "Nhat")
+
+
+# inits
+#Nst <- apply(jags_data$y, 1, max)
+#inits <- function()list(#N = jags_data$y,
+#  #lambda = runif(jags_data$nSites, 1,3),
+#  alpha_p = 0.1,#runif(1, 0.1, 0.1),
+#  beta_p = 100)#runif(1, 0.1, 50))
+
+
+
+# fit model
+out <- jags(jags_data, inits=NULL, parameters,
+            here("scripts", "rn_model.txt"),
+            n.chain=3, n.burnin=25, n.iter=500, n.thin=2)
+            #n.chain=3, n.burnin=1500, n.iter=5000, n.thin=15)
+#n.chain=3, n.burnin=25000, n.iter=50000, n.thin=100)
+#n.chain=3, n.burnin=50000, n.iter=150000, n.thin=100)
+
+
+# Save results  
+saveRDS(out, here("output", "model_2002545.rds"))
+
+
+str(out$sims.list$N)
+
+N <- tibble(especie = unique(rn_data_2002545$species)) %>%
+  bind_cols(round(apply(out$sims.list$N, c(2,4), mean),2)) %>%
+  rename_with(~ as.character(c(2016:2025)), .cols = c(2:11)) %>%
+  print()
+
+str(out$sims.list$Nhat)
+Nhat <- tibble(especie = unique(rn_data_2002545$species)) %>%
+  bind_cols(round(apply(out$sims.list$Nhat, c(2,3), mean),2)) %>%
+  rename_with(~ as.character(c(2016:2024)), .cols = c(2:11)) %>%
+  print()
+
+Nhat %>%
+  pivot_longer(cols = -1,  names_to = "ano", values_to = "n") %>%
+  mutate(ano = as.numeric(ano)) %>%
+  ggplot(aes(x = ano, y = n, group = especie)) +
+  geom_line() +
+  facet_wrap(~especie, scales = "free_y") +
+  #scale_x_continuous(breaks = scales::breaks_pretty(n=5)) +
+  scale_x_continuous(breaks = seq(2016, 2025, by = 2)) +
+  labs(y = "Abundancia relativa", x = "")
+
+N %>%
+  pivot_longer(cols = -1,  names_to = "ano", values_to = "n") %>%
+  mutate(ano = as.numeric(ano)) %>%
+  ggplot(aes(x = ano, y = n, group = especie)) +
+  geom_line() +
+  facet_wrap(~especie, scales = "free_y") +
+  #scale_x_continuous(breaks = scales::breaks_pretty(n=5)) +
+  scale_x_continuous(breaks = seq(2016, 2025, by = 2)) +
+  labs(y = "Abundancia relativa", x = "")
+
