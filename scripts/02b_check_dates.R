@@ -999,8 +999,8 @@ images <- images %>%
 
 
 #----- save aggregated data
-data_fixed_dates <- list(projects=projects,
+florestal_fixed_dates <- list(projects=projects,
                          deployments=deployments,
                          images=images)
-saveRDS(data_fixed_dates, here("output", "data_fixed_dates.rds"))
+saveRDS(data_fixed_dates, here("output", "florestal_fixed_dates.rds"))
 

@@ -9,11 +9,11 @@ library(tidyverse)
 
 
 #----- read data
-data_fixed_dates <- readRDS(here("output", "data_fixed_dates.rds"))
-projects <- data_fixed_dates$projects
-deployments <- data_fixed_dates$deployments
-images <- data_fixed_dates$images
-rm(data_fixed_dates)
+florestal_fixed_dates <- readRDS(here("output", "florestal_fixed_dates.rds"))
+projects <- florestal_fixed_dates$projects
+deployments <- florestal_fixed_dates$deployments
+images <- florestal_fixed_dates$images
+rm(florestal_fixed_dates)
 
 #----- check taxonomy
 
