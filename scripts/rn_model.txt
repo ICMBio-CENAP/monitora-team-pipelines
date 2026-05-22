@@ -38,15 +38,15 @@ model {
       
       # random site effects
       for (j in 1:nsite){
-        alpha.site[i,j] ~ dnorm(mu.alpha.site, tau.alpha.site)
+        eps.site[i,j] ~ dnorm(mu.eps.site, tau.eps.site)
         }#j
       
     }#i
 
   # hyperparameter for random site effects
-  mu.alpha.site ~ dnorm(0, 0.01)
-  tau.alpha.site <- 1 / (sd.alpha.site*sd.alpha.site)
-  sd.alpha.site ~ dunif(0, 2)
+  mu.eps.site ~ dnorm(0, 0.01)
+  tau.eps.site <- 1 / (sd.eps.site*sd.eps.site)
+  sd.eps.site ~ dunif(0, 2)
 
   ## Likelihood
 
@@ -55,7 +55,7 @@ model {
     for(k in 1:nyear){
   
     # abundance
-    log(lambda[i,j,k]) <- alpha0.sp[i] + alpha1.sp[i]*year[k] + alpha.site[i,j]
+    log(lambda[i,j,k]) <- alpha0.sp[i] + alpha1.sp[i]*year[k] + eps.site[i,j]
     N[i,j,k] ~ dpois(lambda[i,j,k])
     
       }#k

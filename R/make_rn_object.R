@@ -12,12 +12,6 @@
 
 make_rn_object <- function(x) {
   
-  # supress warnings
-  # save current warning setting and set to -1 (ignore all)
-  old_warn <- options(warn = -1)
-  # ensure the original setting is restored even if an error occurs
-  on.exit(options(old_warn))
-  
   trials <- deployments %>%
     # keep only selected project
     filter(project_id == x) %>%
