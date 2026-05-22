@@ -99,7 +99,7 @@ images <- images %>%
 
 # reset end dates using max photo date
 deployments <- deployments %>%
-  mutate(end_date = case_when(end_date > start_date + 30 ~ start_date + 30,
+  mutate(end_date = case_when(end_date > start_date + 29 ~ start_date + 29,
                               .default = end_date)) %>%
   print()
 
@@ -138,23 +138,30 @@ images <- images %>%
 # in the near future we can try a multi-region model
 
 trials <- deployments %>%
-  distinct(deployment_id, .keep_all = TRUE) %>%
   # keep only selected project
   filter(project_id == 2002545) %>%
+  distinct(deployment_id, .keep_all = TRUE) %>%
   # create sampling_event and number of trialss
   mutate(sampling_event = year(start_date),
-         trials = round(as.numeric(end_date-start_date)/5)) %>%
+         #trials = round(as.numeric(end_date-start_date)/5),
+         # use ceiling instead of round so that we always get next upper integer
+         trials = ceiling(as.numeric(end_date-start_date)/5)) %>%
   distinct(deployment_id, placename, sampling_event, trials) %>%
   arrange(deployment_id, placename, sampling_event) %>%
   print()
+
+trials %>%
+  ggplot(aes(x = trials)) +
+  geom_histogram()
 
 
 counts <- images %>%
   # keep only deployments in trials
   filter(deployment_id %in% trials$deployment_id) %>%
+  distinct(deployment_id, genus, species, start_date, photo_date) %>%
   # crop photos out of sampling range
-  filter(photo_date >= start_date,
-         photo_date <= start_date + 29) %>%
+  #filter(photo_date >= start_date,
+  #       photo_date <= start_date + 29) %>%
   # create species and sampling_event
   mutate(species = paste(genus, species),
          sampling_event = year(start_date)) %>%
@@ -170,6 +177,10 @@ counts <- images %>%
   summarise(y = n_distinct(dategroup)) %>%
   ungroup() %>%
   print()
+
+counts %>%
+  ggplot(aes(x = y)) +
+  geom_histogram()
 
 
 
@@ -189,6 +200,8 @@ rn_data_2002545 <- counts %>%
   select(placename, sampling_event, species, trials, y) %>%
   print(n=50)
 
-
+rn_data_2002545 %>%
+  mutate(diff = trials-y) %>%
+  filter(diff < 0)
 
 saveRDS(rn_data_2002545, here("output","rn_data_2002545.rds"))

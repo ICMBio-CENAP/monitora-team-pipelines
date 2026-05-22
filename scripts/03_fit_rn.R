@@ -13,7 +13,7 @@ rn_data_2002545 <- readRDS(here("output","rn_data_2002545.rds"))
 
 # teste para ver se roda
 # sera preciso corrigir o script anterior porque obs 9188 tem dois sucessos e uma tentativa
-rn_data_2002545 <- rn_data_2002545[1:9000,]
+#rn_data_2002545 <- rn_data_2002545[1:9000,]
 
 site <- as.numeric(dense_rank(rn_data_2002545$placename))
 species <- as.numeric(dense_rank(rn_data_2002545$species))
@@ -21,7 +21,7 @@ year <- as.numeric(dense_rank(rn_data_2002545$sampling_event))
 trials <- as.numeric(rn_data_2002545$trials)
 y <- as.numeric(rn_data_2002545$y)
 
-rm(rn_data_2002545)
+#rm(rn_data_2002545)
 
 # bundle data
 jags_data = list(site = site,
@@ -79,7 +79,17 @@ model {
       r.sp[i] ~ dnorm(mu.r,tau.r)
       logit(r[i]) <- r.sp[i]
       
+      # random site effects
+      for (j in 1:nsite){
+        eps.site[i,j] ~ dnorm(mu.eps.site, tau.eps.site)
+        }#j
+      
     }#i
+
+  # hyperparameter for random site effects
+  mu.eps.site ~ dnorm(0, 0.01)
+  tau.eps.site <- 1 / (sd.eps.site*sd.eps.site)
+  sd.eps.site ~ dunif(0, 2)
 
   ## Likelihood
 
@@ -88,7 +98,7 @@ model {
     for(k in 1:nyear){
   
     # abundance
-    log(lambda[i,j,k]) <- alpha0.sp[i] + alpha1.sp[i]*year[k]
+    log(lambda[i,j,k]) <- alpha0.sp[i] + alpha1.sp[i]*year[k] + eps.site[i,j]
     N[i,j,k] ~ dpois(lambda[i,j,k])
     
       }#k
@@ -140,7 +150,7 @@ parameters <- c("r", "p",  "N", "Nhat")
 # fit model
 out <- jags(jags_data, inits=NULL, parameters,
             here("scripts", "rn_model.txt"),
-            n.chain=3, n.burnin=25, n.iter=500, n.thin=2)
+            n.chain=3, n.burnin=250, n.iter=1000, n.thin=2)
             #n.chain=3, n.burnin=1500, n.iter=5000, n.thin=15)
 #n.chain=3, n.burnin=25000, n.iter=50000, n.thin=100)
 #n.chain=3, n.burnin=50000, n.iter=150000, n.thin=100)
@@ -160,7 +170,7 @@ N <- tibble(especie = unique(rn_data_2002545$species)) %>%
 str(out$sims.list$Nhat)
 Nhat <- tibble(especie = unique(rn_data_2002545$species)) %>%
   bind_cols(round(apply(out$sims.list$Nhat, c(2,3), mean),2)) %>%
-  rename_with(~ as.character(c(2016:2024)), .cols = c(2:11)) %>%
+  rename_with(~ as.character(c(2016:2025)), .cols = c(2:11)) %>%
   print()
 
 Nhat %>%
@@ -169,6 +179,7 @@ Nhat %>%
   ggplot(aes(x = ano, y = n, group = especie)) +
   geom_line() +
   facet_wrap(~especie, scales = "free_y") +
+  expand_limits(y = 0) +
   #scale_x_continuous(breaks = scales::breaks_pretty(n=5)) +
   scale_x_continuous(breaks = seq(2016, 2025, by = 2)) +
   labs(y = "Abundancia relativa", x = "")
@@ -179,6 +190,7 @@ N %>%
   ggplot(aes(x = ano, y = n, group = especie)) +
   geom_line() +
   facet_wrap(~especie, scales = "free_y") +
+  expand_limits(y = 0) +
   #scale_x_continuous(breaks = scales::breaks_pretty(n=5)) +
   scale_x_continuous(breaks = seq(2016, 2025, by = 2)) +
   labs(y = "Abundancia relativa", x = "")
