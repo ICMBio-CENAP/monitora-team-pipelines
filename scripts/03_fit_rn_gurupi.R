@@ -9,17 +9,17 @@ library(tidyverse)
 library(jagsUI)
 
 # read pre-processed data
-rn_data_2002545 <- readRDS(here("output","rn_data_2002545.rds"))
+rn_data_gurupi <- readRDS(here("output","rn_data_gurupi.rds"))
 
 # teste para ver se roda
 # sera preciso corrigir o script anterior porque obs 9188 tem dois sucessos e uma tentativa
 #rn_data_2002545 <- rn_data_2002545[1:9000,]
 
-site <- as.numeric(dense_rank(rn_data_2002545$placename))
-species <- as.numeric(dense_rank(rn_data_2002545$species))
-year <- as.numeric(dense_rank(rn_data_2002545$sampling_event))
-trials <- as.numeric(rn_data_2002545$trials)
-y <- as.numeric(rn_data_2002545$y)
+site <- as.numeric(dense_rank(rn_data_gurupi$placename))
+species <- as.numeric(dense_rank(rn_data_gurupi$species))
+year <- as.numeric(dense_rank(rn_data_gurupi$sampling_event))
+trials <- as.numeric(rn_data_gurupi$trials)
+y <- as.numeric(rn_data_gurupi$y)
 
 #rm(rn_data_2002545)
 
@@ -150,25 +150,25 @@ parameters <- c("r", "p",  "N", "Nhat")
 # fit model
 out <- jags(jags_data, inits=NULL, parameters,
             here("scripts", "rn_model.txt"),
-            n.chain=3, n.burnin=250, n.iter=1000, n.thin=2)
+            n.chain=3, n.burnin=2500, n.iter=10000, n.thin=2)
             #n.chain=3, n.burnin=1500, n.iter=5000, n.thin=15)
 #n.chain=3, n.burnin=25000, n.iter=50000, n.thin=100)
 #n.chain=3, n.burnin=50000, n.iter=150000, n.thin=100)
 
 
 # Save results  
-saveRDS(out, here("output", "model_2002545.rds"))
+saveRDS(out, here("output", "model_gurupi.rds"))
 
 
 str(out$sims.list$N)
 
-N <- tibble(especie = unique(rn_data_2002545$species)) %>%
+N <- tibble(especie = unique(rn_data_gurupi$species)) %>%
   bind_cols(round(apply(out$sims.list$N, c(2,4), mean),2)) %>%
   rename_with(~ as.character(c(2016:2025)), .cols = c(2:11)) %>%
   print()
 
 str(out$sims.list$Nhat)
-Nhat <- tibble(especie = unique(rn_data_2002545$species)) %>%
+Nhat <- tibble(especie = unique(rn_data_gurupi$species)) %>%
   bind_cols(round(apply(out$sims.list$Nhat, c(2,3), mean),2)) %>%
   rename_with(~ as.character(c(2016:2025)), .cols = c(2:11)) %>%
   print()

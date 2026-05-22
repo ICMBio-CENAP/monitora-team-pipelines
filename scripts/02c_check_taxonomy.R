@@ -20,29 +20,22 @@ rm(florestal_fixed_dates)
 # NB! incorrect identifications should be checked and fixed in Wildlife Insights
 # however, here we will provisionally fix some stuff here
 
-
-
-# check individual projects
-
-# gurupi
-target_spp <- images %>%
-  filter(project_id == 2002545) %>%
+#----- firstly, keep only global targets
+# discard non-targets as well as congeneric species that
+# are difficult to identify
+# e.g. Dasypus, Leopardus, Mazama 
+global_targets <- images %>%
   filter(class %in% c("Mammalia", "Aves")) %>%
-  # filter target families
-  filter(family %in% c("Cracidae", "Odontophoridae", "Psophiidae", "Tinamidae",
-                       "Cervidae", #"Canidae", "Felidae",
-                       "Mustelidae",
-                       "Procyonidae", "Tayassuidae", "Chlamyphoridae",
-                       "Dasypodidae", "Didelphidae", "Tapiridae",
-                       "Myrmecophagidae", "Cuniculidae", "Dasyproctidae",
-                       "Sciuridae")) %>%
-  # filter target species and species with enough data
-  drop_na(genus, species) %>%
-  filter(! genus %in% c("Penelope", "Pipile", "Crypturellus", "Tinamus", "Cerdocyon",
-                        "Speothos", "Panthera", "Galictis", "Lontra",
-                        "Cabassous", "Euphractus", "Caluromys", "Chironectes",
-                        "Philander")) %>%
-  filter(! species %in% c("jacquacu", "yagouaroundi", "kappleri")) %>%
+  filter(family %in% c("Columbidae", "Cracidae", "Odontophoridae", "Psophiidae",
+                      "Tinamidae", "Cervidae", "Canidae", "Felidae",
+                      "Mustelidae", "Procyonidae", "Tayassuidae", "Chlamyphoridae",
+                      "Dasypodidae", "Didelphidae", "Tapiridae", "Myrmecophagidae",
+                      "Cuniculidae", "Dasyproctidae", "Sciuridae")) %>%
+  filter(genus %in% c("Geotrygon", "Crax", "Mitu", "Penelope", "Odontophorus",
+                      "Psophia", "Tinamus", "Atelocynus", "Panthera", "Puma",
+                      "Eira", "Nasua", "Dicotyles", "Tayassu", "Priodontes",
+                      "Didelphis", "Metachirus", "Tapirus", "Myrmecophaga",
+                       "Tamandua", "Cuniculus", "Dasyprocta", "Sciurus")) %>%
   group_by(class, order, family, genus, species) %>%
   count() %>%
   arrange(class, order, family, genus, species) %>%
@@ -50,6 +43,50 @@ target_spp <- images %>%
   mutate(targets = paste(genus, species, sep = " ")) %>%
   pull(targets) %>%
   print()
+
+# now filter images files based on target_spp
+images <- images %>%
+  filter(paste(genus, species) %in% global_targets) %>%
+  print()
+
+
+
+#----- now, check individual projects
+
+# gurupi
+images %>%
+  filter(project_id == 2002545) %>%
+  group_by(class, order, family, genus, species) %>%
+  count() %>%
+  arrange(class, order, family, genus, species) %>%
+  print(n=Inf)
+
+target_spp <- images %>%
+  filter(project_id == 2002545) %>%
+  # filter target species / species with enough data
+  drop_na(genus, species) %>%
+  filter(genus %in% c("Geotrygon", "Mitu", "Odontophorus", "Psophia", 
+                      "Panthera", "Eira", "Nasua", "Dicotyles",
+                      "Tayassu", "Priodontes", "Didelphis", "Tapirus",
+                      "Myrmecophaga", "Tamandua", "Cuniculus", "Dasyprocta")) %>%
+  filter(! species %in% c("guttatus", "major")) %>%
+  group_by(class, order, family, genus, species) %>%
+  count() %>%
+  arrange(class, order, family, genus, species) %>%
+  print(n=Inf) %>%
+  mutate(targets = paste(genus, species, sep = " ")) %>%
+  pull(targets) %>%
+  print()
+
+# fix taxnomomies
+images <- images %>% 
+  mutate(species = case_when(project_id == 2002545 & genus == "Geotrygon" ~ "montana",
+                             project_id == 2002545 & genus == "Odontophorus" ~ "gujanensis",
+                             project_id == 2002545 & genus == "Didelphis" ~ "marsupialis",
+                             project_id == 2002545 & genus == "Sciurus" ~ "aestuans",
+                             .default = species)) %>%
+  print()
+  
 
 # now filter images files based on target_spp
 images <- images %>%
@@ -67,27 +104,23 @@ images <- images %>%
 
 
 # terra do meio
+images %>%
+  filter(project_id == 2002554) %>%
+  group_by(class, order, family, genus, species) %>%
+  count() %>%
+  arrange(class, order, family, genus, species) %>%
+  print(n=Inf)
+
 target_spp <- images %>%
   filter(project_id == 2002554) %>%
-  filter(class %in% c("Mammalia", "Aves")) %>%
-  # filtrar familias alvo
-  filter(family %in% c("Cracidae", "Odontophoridae", "Psophiidae", "Tinamidae",
-                       "Cervidae", #"Canidae", "Felidae",
-                       "Mustelidae",
-                       "Procyonidae", "Tayassuidae", "Chlamyphoridae",
-                       "Dasypodidae", "Didelphidae", "Tapiridae",
-                       "Myrmecophagidae", "Cuniculidae", "Dasyproctidae",
-                       "Sciuridae")) %>%
-  # filtrar especies identificaveis ou com dados suficientes
+  # filter target species / species with enough data
   drop_na(genus, species) %>%
-  filter(! genus %in% c("Pipile", "Psophia", "Crypturellus", "Atelocynus",
-                        "Canis", "Cerdocyon", "Speothos", 
-                        "Panthera", "Eira", "Galictis", "Procyon",
-                        "Odocoileus", "Dasypus", "Cabassous", "Tamandua",
-                        "Metachirus", "Didelphis", "Guerlinguetus", "Sciurus")) %>%
-  filter(! species %in% c("alector", "jacquacu", "viridis",
-                          "guttatus", "major", "wiedii","yagouaroundi", 
-                          "kappleri")) %>%
+  filter(genus %in% c("Geotrygon", "Crax", "Mitu", "Odontophorus", 
+                      "Psophia", "Tinamus", "Panthera", "Puma",
+                      "Eira", "Nasua", "Dicotyles", "Tayassu",
+                      "Metachirus", "Tapirus", "Myrmecophaga", "Tamandua",
+                      "Cuniculus", "Dasyprocta")) %>%
+  filter(! species %in% c("guttatus", "major")) %>%
   group_by(class, order, family, genus, species) %>%
   count() %>%
   arrange(class, order, family, genus, species) %>%
@@ -96,16 +129,21 @@ target_spp <- images %>%
   pull(targets) %>%
   print()
 
-
-# in terra do meio, replace wrong taxonomies but keep record
-# from Dasyprocta leporina to iacki
-# from Psophia viridis to dextralis
+# fix taxonomies
 images <- images %>%
-  mutate(species = case_when(project_id == 2002554 & species == "leporina" ~ "iacki",
+  mutate(species = case_when(project_id == 2002554 & genus == "Geotrygon" ~ "montana",
+                             project_id == 2002554 & genus == "Crax" ~ "fasciolata",
+                             project_id == 2002554 & genus == "Mitu" ~ "tuberosum",
+                             project_id == 2002554 & genus == "Odontophorus" ~ "gujanensis",
+                             project_id == 2002554 & genus == "Nasua" ~ "nasua",
+                             project_id == 2002554 & genus == "Tayassu" ~ "pecari",
+                             project_id == 2002554 & genus == "Metachirus" ~ "nudicaudatus",
+                             project_id == 2002554 & genus == "Tapirus" ~ "terrestris",
+                             project_id == 2002554 & genus == "Cuniculus" ~ "paca",
+                             project_id == 2002554 & genus == "Dasyprocta" ~ "iacki",
                              project_id == 2002554 & species == "viridis" ~ "dextralis",
                              .default = species)) %>%
   print()
-
 
 # now filter images files based on target_spp
 images <- images %>%
@@ -123,27 +161,22 @@ images <- images %>%
 
 
 # jamari
+images %>%
+  filter(project_id == 2002562) %>%
+  group_by(class, order, family, genus, species) %>%
+  count() %>%
+  arrange(class, order, family, genus, species) %>%
+  print(n=Inf)
+
 target_spp <- images %>%
   filter(project_id == 2002562) %>%
-  filter(class %in% c("Mammalia", "Aves")) %>%
-  # filtrar familias alvo
-  filter(family %in% c("Cracidae", "Odontophoridae", "Psophiidae", "Tinamidae",
-                       "Cervidae", #"Canidae", "Felidae",
-                       "Mustelidae",
-                       "Procyonidae", "Tayassuidae", "Chlamyphoridae",
-                       "Dasypodidae", "Didelphidae", "Tapiridae",
-                       "Myrmecophagidae", "Cuniculidae", "Dasyproctidae",
-                       "Sciuridae")) %>%
-  # filtrar especies identificaveis ou com dados suficientes
+  # filter target species / species with enough data
   drop_na(genus, species) %>%
-  filter(! genus %in% c("Odontophorus", "Crypturellus", "Atelocynus", "Cerdocyon",
-                        "Speothos", "Herpailurus", "Panthera", "Puma",
-                        "Galictis", "Potos", "Procyon", "Odocoileus",
-                        "Cabassous", "Priodontes", "Tamandua",
-                        "Metachirus", "Myoprocta", "Sciurus")) %>%
-  filter(! species %in% c("fasciolata", "tomentosum", "urumutum",
-                          "superciliaris", "guttatus", "major",
-                          "wiedii")) %>%
+  filter(genus %in% c("", "", "", "", 
+                      "", "", "", "",
+                      "", "", "", "",
+                      "", "", "", "")) %>%
+  filter(! species %in% c("guttatus", "major")) %>%
   group_by(class, order, family, genus, species) %>%
   count() %>%
   arrange(class, order, family, genus, species) %>%
@@ -152,9 +185,7 @@ target_spp <- images %>%
   pull(targets) %>%
   print()
 
-# in jamari, replace wrong taxonomies but keep record
-# loads of wrong Dasyprocta, check and fix them all
-# from Psophia crepitans to viridis
+# fix taxonomies
 images <- images %>%
   mutate(species = case_when(project_id == 2002562 & genus == "Dasyprocta" ~ "fuliginosa",
                              project_id == 2002562 & species == "crepitans" ~ "viridis",
@@ -178,27 +209,23 @@ images <- images %>%
 
 
 # juruena
+images %>%
+  filter(project_id == 2002576) %>%
+  group_by(class, order, family, genus, species) %>%
+  count() %>%
+  arrange(class, order, family, genus, species) %>%
+  print(n=Inf)
+
 target_spp <- images %>%
   filter(project_id == 2002576) %>%
-  filter(class %in% c("Mammalia", "Aves")) %>%
-  # filtrar familias alvo
-  filter(family %in% c("Cracidae", "Odontophoridae", "Psophiidae", "Tinamidae",
-                       "Cervidae", #"Canidae", "Felidae", 
-                       "Mustelidae",
-                       "Procyonidae", "Tayassuidae", "Chlamyphoridae",
-                       "Dasypodidae", "Didelphidae", "Tapiridae",
-                       "Myrmecophagidae", "Cuniculidae", "Dasyproctidae",
-                       "Sciuridae")) %>%
-  # filtrar especies identificaveis ou com dados suficientes
+  # filter target species / species with enough data
   drop_na(genus, species) %>%
-  filter(! genus %in% c("Aburria", "Nothocrax", "Ortalis", "Penelope", "Pipile",
-                        "Psophia", "Crypturellus", "Rhynchotus",
-                        "Atelocynus", "Cerdocyon", "Herpailurus", "Panthera",
-                        "Galictis", "Lontra", "Potos",
-                        "Procyon", "Cabassous", "Euphractus", "Tamandua",
-                        "Monodelphis", "Philander", "Sciurus")) %>%
-  filter(! species %in% c("superciliaris", "guttatus", "major", 
-                          "wiedii", "kappleri")) %>%
+  filter(genus %in% c("Geotrygon", "Crax", "Mitu", "Psophia", 
+                      "Panthera", "Puma", "Eira", "Nasua",
+                      "Dicotyles", "Tayassu", "Priodontes", "Didelphis",
+                      "Metachirus", "Tapirus", "Myrmecophaga", "Tamandua",
+                      "Cuniculus", "Dasyprocta")) %>%
+  filter(! species %in% c("guttatus", "major")) %>%
   group_by(class, order, family, genus, species) %>%
   count() %>%
   arrange(class, order, family, genus, species) %>%
@@ -206,6 +233,7 @@ target_spp <- images %>%
   mutate(targets = paste(genus, species, sep = " ")) %>%
   pull(targets) %>%
   print()
+
 
 # now filter images files based on target_spp
 images <- images %>%
@@ -222,26 +250,21 @@ images <- images %>%
 
 
 # maraca
+images %>%
+  filter(project_id == 2002584) %>%
+  group_by(class, order, family, genus, species) %>%
+  count() %>%
+  arrange(class, order, family, genus, species) %>%
+  print(n=Inf)
+
 target_spp <- images %>%
   filter(project_id == 2002584) %>%
-  filter(class %in% c("Mammalia", "Aves")) %>%
-  # filtrar familias alvo
-  filter(family %in% c("Cracidae", "Odontophoridae", "Psophiidae", "Tinamidae",
-                       "Cervidae", #"Canidae", "Felidae",
-                       "Mustelidae",
-                       "Procyonidae", "Tayassuidae", "Chlamyphoridae",
-                       "Dasypodidae", "Didelphidae", "Tapiridae",
-                       "Myrmecophagidae", "Cuniculidae", "Dasyproctidae",
-                       "Sciuridae")) %>%
-  # filtrar especies identificaveis ou com dados suficientes
+  # filter target species / species with enough data
   drop_na(genus, species) %>%
-  filter(! genus %in% c("Mitu", "Ortalis", "Penelope", "Odontophorus",
-                        "Crypturellus", "Speothos", "Herpailurus", "Panthera",
-                        "Puma", "Galictis", "Nasua", "Procyon",
-                        "Odocoileus", "Cabassous", "Priodontes",
-                        "Dasypus", "Didelphis", "Metachirus", "Philander",
-                        "Tamandua", "Sciurus")) %>%
-  filter(! species %in% c("fasciolata", "wiedii", "nemorivaga")) %>%
+  filter(genus %in% c("Crax", "Psophia", "Puma", "Eira", 
+                      "Dicotyles", "Tayassu", "Tapirus", "Myrmecophaga",
+                      "Cuniculus", "Dasyprocta")) %>%
+  filter(! species %in% c("guttatus", "major")) %>%
   group_by(class, order, family, genus, species) %>%
   count() %>%
   arrange(class, order, family, genus, species) %>%
@@ -250,9 +273,14 @@ target_spp <- images %>%
   pull(targets) %>%
   print()
 
-# in maraca, replace wrong taxonomies but keep record
+
+# fix taxonomies
 images <- images %>%
   mutate(species = case_when(project_id == 2002584 & genus == "Dasyprocta" ~ "leporina",
+                             project_id == 2002584 & genus == "Psophia" ~ "crepitans",
+                             project_id == 2002584 & genus == "Crax" ~ "alector",
+                             project_id == 2002584 & genus == "Tayassu" ~ "pecari",
+                             project_id == 2002584 & genus == "Tapirus" ~ "terrestris",
                              .default = species)) %>%
   print()
 

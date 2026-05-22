@@ -7,6 +7,9 @@ rm(list=ls())
 library(here)
 library(tidyverse)
 
+#----- load functions
+source(here("R", "make_rn_object.R"))
+
 
 #----- read data
 florestal_fixed_taxonomy <- readRDS(here("output", "florestal_fixed_taxonomy.rds"))
@@ -103,9 +106,11 @@ deployments <- deployments %>%
                               .default = end_date)) %>%
   print()
 
+
 # crop images using updated end_date
 # lets also add start_date because we will need this to create "count" object
 images <- images %>%
+  select(-c(start_date, end_date)) %>%
   left_join(deployments %>%
               distinct(deployment_id, start_date, end_date),
             by = "deployment_id") %>%
@@ -137,71 +142,27 @@ images <- images %>%
 # lets do it separately for each project 
 # in the near future we can try a multi-region model
 
-trials <- deployments %>%
-  # keep only selected project
-  filter(project_id == 2002545) %>%
-  distinct(deployment_id, .keep_all = TRUE) %>%
-  # create sampling_event and number of trialss
-  mutate(sampling_event = year(start_date),
-         #trials = round(as.numeric(end_date-start_date)/5),
-         # use ceiling instead of round so that we always get next upper integer
-         trials = ceiling(as.numeric(end_date-start_date)/5)) %>%
-  distinct(deployment_id, placename, sampling_event, trials) %>%
-  arrange(deployment_id, placename, sampling_event) %>%
-  print()
 
-trials %>%
-  ggplot(aes(x = trials)) +
-  geom_histogram()
+rn_data_gurupi <- make_rn_object(2002545)
+rn_data_gurupi
 
+rn_data_tdm <- make_rn_object(2002554)
+rn_data_tdm
 
-counts <- images %>%
-  # keep only deployments in trials
-  filter(deployment_id %in% trials$deployment_id) %>%
-  distinct(deployment_id, genus, species, start_date, photo_date) %>%
-  # crop photos out of sampling range
-  #filter(photo_date >= start_date,
-  #       photo_date <= start_date + 29) %>%
-  # create species and sampling_event
-  mutate(species = paste(genus, species),
-         sampling_event = year(start_date)) %>%
-  select(deployment_id, sampling_event, species, start_date, photo_date) %>%
-  arrange(sampling_event, deployment_id, photo_date) %>%
-  # create dategroups
-  group_by(deployment_id) %>%
-  mutate(days_since_start = as.numeric(photo_date - min(start_date)),
-         dategroup = (days_since_start %/% 5) + 1) %>%
-  ungroup() %>%
-  distinct(sampling_event, deployment_id, species, dategroup) %>%
-  group_by(sampling_event, deployment_id, species) %>%
-  summarise(y = n_distinct(dategroup)) %>%
-  ungroup() %>%
-  print()
+rn_data_jamari <- make_rn_object(2002562)
+rn_data_jamari
 
-counts %>%
-  ggplot(aes(x = y)) +
-  geom_histogram()
+rn_data_juruena <- make_rn_object(2002576)
+rn_data_juruena
+
+rn_data_maraca <- make_rn_object(2002584)
+rn_data_maraca
 
 
+saveRDS(rn_data_gurupi, here("output","rn_data_gurupi.rds"))
+saveRDS(rn_data_tdm, here("output","rn_data_tdm.rds"))
+saveRDS(rn_data_jamari, here("output","rn_data_jamari.rds"))
+saveRDS(rn_data_juruena, here("output","rn_data_juruena.rds"))
+saveRDS(rn_data_maraca, here("output","rn_data_maraca.rds"))
 
-rn_data_2002545 <- counts %>%
-  full_join(trials) %>%
-  select(placename, sampling_event, species, trials, y) %>%
-  # complete
-  group_by(placename, sampling_event) %>%
-  mutate(trials = max(trials)) %>%
-  ungroup() %>%
-  complete(species,
-           nesting(placename, sampling_event, trials),
-           fill = list(y = 0)) %>%
-  ungroup() %>%
-  drop_na(species) %>%
-  arrange(species, placename, sampling_event) %>%
-  select(placename, sampling_event, species, trials, y) %>%
-  print(n=50)
 
-rn_data_2002545 %>%
-  mutate(diff = trials-y) %>%
-  filter(diff < 0)
-
-saveRDS(rn_data_2002545, here("output","rn_data_2002545.rds"))
