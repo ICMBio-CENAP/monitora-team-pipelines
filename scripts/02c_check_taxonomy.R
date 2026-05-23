@@ -172,10 +172,9 @@ target_spp <- images %>%
   filter(project_id == 2002562) %>%
   # filter target species / species with enough data
   drop_na(genus, species) %>%
-  filter(genus %in% c("", "", "", "", 
-                      "", "", "", "",
-                      "", "", "", "",
-                      "", "", "", "")) %>%
+  filter(genus %in% c("Geotrygon", "Mitu", "Eira", "Nasua", 
+                      "Dicotyles", "Tayassu", "Priodontes", "Didelphis",
+                      "Tapirus", "Myrmecophaga", "Cuniculus", "Dasyprocta")) %>%
   filter(! species %in% c("guttatus", "major")) %>%
   group_by(class, order, family, genus, species) %>%
   count() %>%
@@ -187,8 +186,14 @@ target_spp <- images %>%
 
 # fix taxonomies
 images <- images %>%
-  mutate(species = case_when(project_id == 2002562 & genus == "Dasyprocta" ~ "fuliginosa",
+  mutate(species = case_when(project_id == 2002562 & genus == "Mitu" ~ "tuberosum",
+                             project_id == 2002562 & genus == "Psophia" ~ "viridis",
+                             project_id == 2002562 & genus == "Didelphis" ~ "marsupialis",
+                             project_id == 2002562 & genus == "Cuniculus" ~ "paca",
+                             project_id == 2002562 & genus == "Dasyprocta" ~ "fuliginosa",
                              project_id == 2002562 & species == "crepitans" ~ "viridis",
+                             project_id == 2002562 & species == "leporina" ~ "fuliginosa",
+                             project_id == 2002562 & species == "punctata" ~ "fuliginosa",
                              .default = species)) %>%
   print()
 
