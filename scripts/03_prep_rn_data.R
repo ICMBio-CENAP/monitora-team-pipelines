@@ -151,6 +151,7 @@ rn_data_tdm
 
 rn_data_jamari <- make_rn_object(2002562)
 rn_data_jamari
+rn_data_jamari[1746,] 
 
 rn_data_juruena <- make_rn_object(2002576)
 rn_data_juruena

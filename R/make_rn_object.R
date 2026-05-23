@@ -26,6 +26,9 @@ make_rn_object <- function(x) {
   
   
   counts <- images %>%
+    # crop dates outside range
+    filter(photo_date >= start_date,
+           photo_date <= end_date) %>%
     # keep only deployments in trials
     filter(deployment_id %in% trials$deployment_id) %>%
     distinct(deployment_id, genus, species, start_date, photo_date) %>%
@@ -36,8 +39,12 @@ make_rn_object <- function(x) {
     arrange(sampling_event, deployment_id, photo_date) %>%
     # create dategroups
     group_by(deployment_id) %>%
-    mutate(days_since_start = as.numeric(photo_date - min(start_date)),
-           dategroup = (days_since_start %/% 5) + 1) %>%
+    mutate(#days_since_start = as.numeric(photo_date - min(start_date)),
+           days_since_start = round(as.numeric(photo_date - start_date)),
+           #dategroup = (days_since_start %/% 5) + 1) %>%
+           #dategroup = (days_since_start %/% 5)) %>%
+           dategroup = cut(days_since_start, breaks = seq(0, 100, by = 5),
+                           labels = FALSE, include.lowest = TRUE)) %>%
     ungroup() %>%
     distinct(sampling_event, deployment_id, species, dategroup) %>%
     group_by(sampling_event, deployment_id, species) %>%

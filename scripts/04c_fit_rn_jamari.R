@@ -441,7 +441,7 @@ hist(apply(out$sims.list$N, 2, mean),
 # get site-level abundance data for each species and year
 N <- tibble(especie = unique(rn_data_jamari$species)) %>%
   bind_cols(round(apply(out$sims.list$N, c(2,4), mean),2)) %>%
-  rename_with(~ as.character(c(2016:2025)), .cols = c(2:11)) %>%
+  rename_with(~ as.character(c(2016:2024)), .cols = c(2:10)) %>%
   print()
 
 # plot site-level abundances
@@ -453,14 +453,14 @@ N %>%
   facet_wrap(~especie, scales = "free_y") +
   expand_limits(y = 0) +
   #scale_x_continuous(breaks = scales::breaks_pretty(n=5)) +
-  scale_x_continuous(breaks = seq(2016, 2025, by = 2)) +
+  scale_x_continuous(breaks = seq(2016, 2024, by = 2)) +
   labs(y = "Abundancia relativa", x = "")
 
 
 # get PA-level abundance data for each species and year
 Nhat <- tibble(especie = unique(rn_data_jamari$species)) %>%
   bind_cols(round(apply(out$sims.list$Nhat, c(2,3), mean),2)) %>%
-  rename_with(~ as.character(c(2016:2025)), .cols = c(2:11)) %>%
+  rename_with(~ as.character(c(2016:2024)), .cols = c(2:10)) %>%
   print()
 
 # plot PA-level abundances
@@ -472,7 +472,7 @@ Nhat %>%
   facet_wrap(~especie, scales = "free_y") +
   expand_limits(y = 0) +
   #scale_x_continuous(breaks = scales::breaks_pretty(n=5)) +
-  scale_x_continuous(breaks = seq(2016, 2025, by = 2)) +
+  scale_x_continuous(breaks = seq(2016, 2024, by = 2)) +
   labs(y = "Abundancia relativa", x = "")
 
 
@@ -489,7 +489,7 @@ tibble(ano = sort(unique(rn_data_jamari$sampling_event)),
 N <- tibble(especie = unique(rn_data_jamari$species),
             uc = "Reserva Biologica do jamari") %>%
   bind_cols(round(apply(out$sims.list$N, c(2,4), mean),2)) %>%
-  rename_with(~ as.character(c(2016:2025)), .cols = c(3:12)) %>%
+  rename_with(~ as.character(c(2016:2024)), .cols = c(3:11)) %>%
   pivot_longer(cols = -c(1,2),  names_to = "ano", values_to = "n") %>%
   mutate(ano = as.numeric(ano)) %>%
   left_join(tibble(ano = sort(unique(rn_data_jamari$sampling_event)),
