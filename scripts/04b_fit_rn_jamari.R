@@ -155,7 +155,7 @@ parameters <- c("r", "p",  "N", "Nhat")
 # fit model
 out <- jags(jags_data, inits=NULL, parameters,
             here("scripts", "rn_model.txt"),
-            n.chain=3, n.burnin=250, n.iter=1000, n.thin=2)
+            n.chain=3, n.burnin=10000, n.iter=30000, n.thin=250)
 #n.chain=3, n.burnin=1500, n.iter=5000, n.thin=15)
 #n.chain=3, n.burnin=25000, n.iter=50000, n.thin=100)
 #n.chain=3, n.burnin=50000, n.iter=150000, n.thin=100)
@@ -174,8 +174,8 @@ abline(v = 1.1, lty = "dashed", lwd = 2, col = "red")
 length(out$summary[which(out$summary[,"Rhat"] > 1.1),])
 round(length(out$summary[which(out$summary[,"Rhat"] > 1.1),])/length(out$summary),2)
 
-traceplot(out, parameters = c("N"))
-traceplot(out, parameters = c("r"))
+#traceplot(out, parameters = c("N"))
+#traceplot(out, parameters = c("r"))
 
 
 ##----- check results -----

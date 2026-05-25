@@ -9,22 +9,22 @@ library(tidyverse)
 library(jagsUI)
 
 # read pre-processed data
-rn_data_gurupi <- readRDS(here("output","rn_data_gurupi.rds"))
+rn_data_maraca <- readRDS(here("output","rn_data_maraca.rds"))
 
-# teste para ver se roda
-# sera preciso corrigir o script anterior porque obs 9188 tem dois sucessos e uma tentativa
-#rn_data_2002545 <- rn_data_2002545[1:9000,]
+#rn_data_maraca <- rn_data_maraca %>%
+#  distinct(placename, sampling_event, species, .keep_all = TRUE) %>%
+#  print()
 
-site <- as.numeric(dense_rank(rn_data_gurupi$placename))
-species <- as.numeric(dense_rank(rn_data_gurupi$species))
-year <- match(rn_data_gurupi$sampling_event, 2016:2025)
-trials <- as.numeric(rn_data_gurupi$trials)
-y <- as.numeric(rn_data_gurupi$y)
+site <- as.numeric(dense_rank(rn_data_maraca$placename))
+species <- as.numeric(dense_rank(rn_data_maraca$species))
+year <- match(rn_data_maraca$sampling_event, 2018:2021)
+trials <- as.numeric(rn_data_maraca$trials)
+y <- as.numeric(rn_data_maraca$y)
 
 #rm(rn_data_2002545)
 
-min(rn_data_gurupi$sampling_event)
-max(rn_data_gurupi$sampling_event)
+min(rn_data_maraca$sampling_event)
+max(rn_data_maraca$sampling_event)
 
 # bundle data
 jags_data = list(site = site,
@@ -155,13 +155,13 @@ parameters <- c("r", "p",  "N", "Nhat")
 out <- jags(jags_data, inits=NULL, parameters,
             here("scripts", "rn_model.txt"),
             n.chain=3, n.burnin=10000, n.iter=30000, n.thin=250)
-            #n.chain=3, n.burnin=1500, n.iter=5000, n.thin=15)
+#n.chain=3, n.burnin=1500, n.iter=5000, n.thin=15)
 #n.chain=3, n.burnin=25000, n.iter=50000, n.thin=100)
 #n.chain=3, n.burnin=50000, n.iter=150000, n.thin=100)
 
 
 # save results
-saveRDS(out, here("output", "model_gurupi.rds"))
+saveRDS(out, here("output", "model_maraca.rds"))
 
 
 ##----- check convergence -----
@@ -200,9 +200,9 @@ hist(apply(out$sims.list$N, 2, mean),
      xlab = "Average relative abundance")
 
 # get site-level abundance data for each species and year
-N <- tibble(especie = unique(rn_data_gurupi$species)) %>%
+N <- tibble(especie = unique(rn_data_maraca$species)) %>%
   bind_cols(round(apply(out$sims.list$N, c(2,4), mean),2)) %>%
-  rename_with(~ as.character(c(2016:2025)), .cols = c(2:11)) %>%
+  rename_with(~ as.character(c(2018:2021)), .cols = c(2:10)) %>%
   print()
 
 # plot site-level abundances
@@ -214,14 +214,14 @@ N %>%
   facet_wrap(~especie, scales = "free_y") +
   expand_limits(y = 0) +
   #scale_x_continuous(breaks = scales::breaks_pretty(n=5)) +
-  scale_x_continuous(breaks = seq(2016, 2025, by = 2)) +
+  scale_x_continuous(breaks = seq(2016, 2024, by = 2)) +
   labs(y = "Abundancia relativa", x = "")
 
 
 # get PA-level abundance data for each species and year
-Nhat <- tibble(especie = unique(rn_data_gurupi$species)) %>%
+Nhat <- tibble(especie = unique(rn_data_maraca$species)) %>%
   bind_cols(round(apply(out$sims.list$Nhat, c(2,3), mean),2)) %>%
-  rename_with(~ as.character(c(2016:2025)), .cols = c(2:11)) %>%
+  rename_with(~ as.character(c(2016:2024)), .cols = c(2:10)) %>%
   print()
 
 # plot PA-level abundances
@@ -233,27 +233,27 @@ Nhat %>%
   facet_wrap(~especie, scales = "free_y") +
   expand_limits(y = 0) +
   #scale_x_continuous(breaks = scales::breaks_pretty(n=5)) +
-  scale_x_continuous(breaks = seq(2016, 2025, by = 2)) +
+  scale_x_continuous(breaks = seq(2016, 2024, by = 2)) +
   labs(y = "Abundancia relativa", x = "")
-
 
 
 #----- get abundances only for sampled years
 # abundance for unsampled years should be NA
+
 N %>%
   pivot_longer(cols = -1,  names_to = "ano", values_to = "n") %>%
   mutate(ano = as.numeric(ano))
 
-tibble(ano = sort(unique(rn_data_gurupi$sampling_event)),
+tibble(ano = sort(unique(rn_data_maraca$sampling_event)),
        sampled = "yes")
 
-N <- tibble(especie = unique(rn_data_gurupi$species),
-            uc = "Reserva Biologica do Gurupi") %>%
+N <- tibble(especie = unique(rn_data_maraca$species),
+            uc = "Estação Ecológica de Maracá") %>%
   bind_cols(round(apply(out$sims.list$N, c(2,4), mean),2)) %>%
-  rename_with(~ as.character(c(2016:2025)), .cols = c(3:12)) %>%
+  rename_with(~ as.character(c(2016:2024)), .cols = c(3:11)) %>%
   pivot_longer(cols = -c(1,2),  names_to = "ano", values_to = "n") %>%
   mutate(ano = as.numeric(ano)) %>%
-  left_join(tibble(ano = sort(unique(rn_data_gurupi$sampling_event)),
+  left_join(tibble(ano = sort(unique(rn_data_maraca$sampling_event)),
                    amostrado = "sim")) %>%
   mutate(n = case_when(amostrado == "sim" ~ n,
                        .default = NA)) %>%

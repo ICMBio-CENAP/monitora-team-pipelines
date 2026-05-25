@@ -11,9 +11,13 @@ library(jagsUI)
 # read pre-processed data
 rn_data_tdm <- readRDS(here("output","rn_data_tdm.rds"))
 
+# use only first 3 years (array 1)
+rn_data_tdm <- rn_data_tdm %>%
+  filter(sampling_event <= 2018)
+
 # teste para ver se roda
 # problema na funcao que cria objeto para rn:
-rn_data_tdm[1746,] # y > trials...
+#rn_data_tdm[1746,] # y > trials...
 
 
 site <- as.numeric(dense_rank(rn_data_tdm$placename))
@@ -155,7 +159,7 @@ parameters <- c("r", "p",  "N", "Nhat")
 # fit model
 out <- jags(jags_data, inits=NULL, parameters,
             here("scripts", "rn_model.txt"),
-            n.chain=3, n.burnin=250, n.iter=1000, n.thin=2)
+            n.chain=3, n.burnin=10000, n.iter=30000, n.thin=250)
 #n.chain=3, n.burnin=1500, n.iter=5000, n.thin=15)
 #n.chain=3, n.burnin=25000, n.iter=50000, n.thin=100)
 #n.chain=3, n.burnin=50000, n.iter=150000, n.thin=100)
@@ -174,8 +178,8 @@ abline(v = 1.1, lty = "dashed", lwd = 2, col = "red")
 length(out$summary[which(out$summary[,"Rhat"] > 1.1),])
 round(length(out$summary[which(out$summary[,"Rhat"] > 1.1),])/length(out$summary),2)
 
-traceplot(out, parameters = c("N"))
-traceplot(out, parameters = c("r"))
+#traceplot(out, parameters = c("N"))
+#traceplot(out, parameters = c("r"))
 
 
 ##----- check results -----
@@ -203,7 +207,7 @@ hist(apply(out$sims.list$N, 2, mean),
 # get site-level abundance data for each species and year
 N <- tibble(especie = unique(rn_data_tdm$species)) %>%
   bind_cols(round(apply(out$sims.list$N, c(2,4), mean),2)) %>%
-  rename_with(~ as.character(c(2016:2024)), .cols = c(2:10)) %>%
+  rename_with(~ as.character(c(2016:2018)), .cols = c(2:4)) %>%
   print()
 
 # plot site-level abundances
@@ -215,14 +219,14 @@ N %>%
   facet_wrap(~especie, scales = "free_y") +
   expand_limits(y = 0) +
   #scale_x_continuous(breaks = scales::breaks_pretty(n=5)) +
-  scale_x_continuous(breaks = seq(2016, 2024, by = 2)) +
+  #scale_x_continuous(breaks = seq(2016, 2018, by = 2)) +
   labs(y = "Abundancia relativa", x = "")
 
 
 # get PA-level abundance data for each species and year
 Nhat <- tibble(especie = unique(rn_data_tdm$species)) %>%
   bind_cols(round(apply(out$sims.list$Nhat, c(2,3), mean),2)) %>%
-  rename_with(~ as.character(c(2016:2024)), .cols = c(2:10)) %>%
+  rename_with(~ as.character(c(2016:2018)), .cols = c(2:4)) %>%
   print()
 
 # plot PA-level abundances
@@ -233,8 +237,7 @@ Nhat %>%
   geom_line() +
   facet_wrap(~especie, scales = "free_y") +
   expand_limits(y = 0) +
-  #scale_x_continuous(breaks = scales::breaks_pretty(n=5)) +
-  scale_x_continuous(breaks = seq(2016, 2024, by = 2)) +
+  #scale_x_continuous(breaks = seq(2016, 2018, by = 2)) +
   labs(y = "Abundancia relativa", x = "")
 
 
@@ -251,7 +254,7 @@ tibble(ano = sort(unique(rn_data_tdm$sampling_event)),
 N <- tibble(especie = unique(rn_data_tdm$species),
             uc = "Estação Ecológica da Terra do Meio") %>%
   bind_cols(round(apply(out$sims.list$N, c(2,4), mean),2)) %>%
-  rename_with(~ as.character(c(2016:2024)), .cols = c(3:11)) %>%
+  rename_with(~ as.character(c(2016:2018)), .cols = c(3:5)) %>%
   pivot_longer(cols = -c(1,2),  names_to = "ano", values_to = "n") %>%
   mutate(ano = as.numeric(ano)) %>%
   left_join(tibble(ano = sort(unique(rn_data_tdm$sampling_event)),
