@@ -17,20 +17,21 @@ Primeiramente, os dados passam por um controle de qualidade, visando garantir su
 
 ## Nota aos colaboradores
 
-Para todas as funções, nomes de objetos, etc, usar o [Tidyverse style guide](https://style.tidyverse.org/)
+Para todas as funções, nomes de objetos, etc, usar o [tidyverse style guide](https://style.tidyverse.org/)
+
 Criar novos branches para modificações
 
 ## Workflow
 
 Agregação dos dados brutos, baixados diretamente da plataforma [Wildlife Insights](https://app.wildlifeinsights.org)
 
-Controle de qualidade dos dados (coordenadas, data e hora, correção de erros, identificações incorretas, duplicações)
+Controle de qualidade dos dados (coordenadas, data e hora, taxonomia, duplicações)
 
-Harmonização taxonômica
+Idealmente, os erros identificados ao longo do pipeline devem ser corrigidos diretamente na plataforma Wildlife Insights. No entanto, dado que o fluxo de entrada de novos dados é constante (de forma que a curadoria é um eterno trabalho em andamento), o pipeline também inclui a correção ou exclusão de dados problemáticos para garantir que dados utilizavéis estejam disponíveis a qualquer momento.
 
 
 ## Nota sobre os dados:
-Arquivos .csv e .rds não foram incluídos neste repositório para evitar lentidão no Git e respeitar os limites de armazenamento do GitHub.
+Arquivos binários (e.g., .csv e .rds) não foram incluídos neste repositório para evitar lentidão no Git e respeitar os limites de armazenamento do GitHub.
 Assim, este repositório contém apenas o código necessário para processar os dados, assumindo que os arquivos de entrada estejam disponíveis localmente no diretório principal do repositório.
 
 

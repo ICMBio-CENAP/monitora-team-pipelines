@@ -3,19 +3,12 @@
 rm(list=ls())
 
 
-#----- load libraries
-library(here)
-library(tidyverse)
-
-
-#----- load functions
-source(here("R", "calculate_time_lag.R"))
-source(here("R", "plot_deployment_operation.R"))
-
+#----- setup
+source("02_scripts/00_setup.R")
 
 
 #----- read data
-florestal_fixed_coords <- readRDS(here("01_entrada", "dados_processados", "florestal_fixed_coords.rds"))
+florestal_fixed_coords <- readRDS("01_entrada/dados_processados/florestal_fixed_coords.rds")
 
 projects <- florestal_fixed_coords$projects %>%
   print()
@@ -1002,5 +995,5 @@ images <- images %>%
 florestal_fixed_dates <- list(projects=projects,
                          deployments=deployments,
                          images=images)
-saveRDS(data_fixed_dates, here("01_entrada", "dados_processados", "florestal_fixed_dates.rds"))
+saveRDS(florestal_fixed_dates, "01_entrada/dados_processados/florestal_fixed_dates.rds")
 

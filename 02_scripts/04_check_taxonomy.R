@@ -3,13 +3,12 @@
 rm(list=ls())
 
 
-#----- load libraries
-library(here)
-library(tidyverse)
+#----- setup
+source("02_scripts/00_setup.R")
 
 
 #----- read data
-florestal_fixed_dates <- readRDS(here("01_entrada", "dados_processados", "florestal_fixed_dates.rds"))
+florestal_fixed_dates <- readRDS("01_entrada/dados_processados/florestal_fixed_dates.rds")
 projects <- florestal_fixed_dates$projects
 deployments <- florestal_fixed_dates$deployments
 images <- florestal_fixed_dates$images
@@ -309,5 +308,6 @@ images <- images %>%
 florestal_fixed_taxonomy <- list(projects=projects,
                                  deployments=deployments,
                                  images=images)
-saveRDS(florestal_fixed_taxonomy, here("01_entrada", "dados_processados", "florestal_fixed_taxonomy.rds"))
+
+saveRDS(florestal_fixed_taxonomy, "01_entrada/dados_processados/florestal_fixed_taxonomy.rds")
 

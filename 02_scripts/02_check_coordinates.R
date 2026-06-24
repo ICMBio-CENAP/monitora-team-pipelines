@@ -3,14 +3,12 @@
 rm(list=ls())
 
 
-#----- load libraries
-library(here)
-library(tidyverse)
-library(leaflet)
+#----- setup
+source("02_scripts/00_setup.R")
 
 
 #----- read data
-florestal_raw <- readRDS(here("01_entrada", "dados_processados", "florestal_raw.rds"))
+florestal_raw <- readRDS("01_entrada/dados_processados/florestal_raw.rds")
 projects <- florestal_raw$projects
 deployments <- florestal_raw$deployments
 images <- florestal_raw$images
@@ -20,18 +18,6 @@ images <- florestal_raw$images
 
 # NB! incorrect coordinates should be checked and fixed in Wildlife Insights
 # however, here we will provisionally exclude any sites with incorrect coords
-
-
-# function to make map
-make_map <- function(x) {
-  deployments %>%
-    filter(project_id == x) %>%
-    distinct(placename, longitude, latitude) %>%
-    leaflet() %>%
-    addProviderTiles(provider = "Esri.NatGeoWorldMap") %>%
-    addCircleMarkers(radius = 2, color = "black",
-                     label = ~placename)
-}
 
 
 # check individual projects
@@ -49,7 +35,7 @@ make_map(2002554)
 # jamari
 make_map(2002562)
 # remove non-team sites from jamari project
-jamari_non_team_cams <- readRDS(here("bin", "jamari-non-team-cams.rds"))
+jamari_non_team_cams <- readRDS("01_entrada/dados_brutos/jamari-non-team-cams.rds")
 deployments <- deployments %>%
   filter(! placename %in% jamari_non_team_cams) %>%
   print()
@@ -109,5 +95,5 @@ images <- images %>%
 florestal_fixed_coords <- list(projects=projects,
                                deployments=deployments,
                                images=images)
-saveRDS(florestal_fixed_coords, here("01_entrada", "dados_processados", "florestal_fixed_coords.rds"))
+saveRDS(florestal_fixed_coords, "01_entrada/dados_processados/florestal_fixed_coords.rds")
 
