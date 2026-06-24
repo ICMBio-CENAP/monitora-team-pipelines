@@ -1,0 +1,1 @@
+# Dados brutos (arquivos em formato csv, xlsx, shp, etc.)

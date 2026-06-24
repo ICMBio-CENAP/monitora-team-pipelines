@@ -1,0 +1,1 @@
+# Dados processados (arquivos em formato csv, rds, rdata, etc)

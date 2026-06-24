@@ -7,12 +7,12 @@ Primeiramente, os dados passam por um controle de qualidade, visando garantir su
 ## Estrutura do diretório
 
 ``` bash
-├───*01_entrada*
+├───01_entrada
 |   ├───dados_brutos
 |   ├───dados_processados
-├───*02_scripts*
+├───02_scripts
 |   ├───funcoes
-└───*03_saida*
+└───03_saida
 ```
 
 ## Nota aos colaboradores
