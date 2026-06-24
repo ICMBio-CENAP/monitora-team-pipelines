@@ -7,19 +7,12 @@ Primeiramente, os dados passam por um controle de qualidade, visando garantir su
 ## Estrutura do diretório
 
 ``` bash
-├───input
-├───script
-│   ├───01_aggregate_raw_data_sources
-│   ├───02a_check_coordinates
-    ├───02b_check_dates
-│   ├───03_prep_rn_data
-│   ├───04a_fit_rn_gurupi
-│   ├───04b_fit_rn_tdm
-│   ├───04c_fit_rn_jamari
-│   ├───04d_fit_rn_juruena
-│   ├───04e_fit_rn_maraca
-├───R
-└───output
+├───*01_entrada*
+|   ├───dados_brutos
+|   ├───dados_processados
+├───*02_scripts*
+|   ├───funcoes
+└───*03_saida*
 ```
 
 ## Nota aos colaboradores

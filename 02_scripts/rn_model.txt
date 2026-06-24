@@ -1,0 +1,88 @@
+
+model {
+  
+  
+  ## Priors
+  
+  ## community-level priors
+    
+    # abundance intercept
+    mu.alpha0 ~ dunif(-10,10)
+    sd.alpha0 ~ dunif(0,2)
+    tau.alpha0 <- 1/(sd.alpha0*sd.alpha0)
+    
+    # time effect
+    mu.alpha1 ~ dunif(-10,10)
+    sd.alpha1 ~ dunif(0,2)
+    tau.alpha1 <- 1/(sd.alpha1*sd.alpha1)
+    
+    # detection
+    mu.r ~ dunif(-2,2)
+    sd.r ~ dunif(0,2)
+    tau.r <- 1/(sd.r*sd.r)
+    
+
+  ## species-level priors
+    
+    for(i in 1:nsp){
+    
+      # average species abundance
+      alpha0.sp[i] ~ dnorm(mu.alpha0,tau.alpha0)
+      
+      # time effect
+      alpha1.sp[i] ~ dnorm(mu.alpha1,tau.alpha0)
+      
+      # average species detection
+      r.sp[i] ~ dnorm(mu.r,tau.r)
+      logit(r[i]) <- r.sp[i]
+      
+      # random site effects
+      for (j in 1:nsite){
+        eps.site[i,j] ~ dnorm(mu.eps.site, tau.eps.site)
+        }#j
+      
+    }#i
+
+  # hyperparameter for random site effects
+  mu.eps.site ~ dnorm(0, 0.01)
+  tau.eps.site <- 1 / (sd.eps.site*sd.eps.site)
+  sd.eps.site ~ dunif(0, 2)
+
+  ## Likelihood
+
+  for(i in 1:nsp){
+   for(j in 1:nsite){
+    for(k in 1:nyear){
+  
+    # abundance
+    log(lambda[i,j,k]) <- alpha0.sp[i] + alpha1.sp[i]*year[k] + eps.site[i,j]
+    N[i,j,k] ~ dpois(lambda[i,j,k])
+    
+      }#k
+    }#j
+  }#i
+    
+    
+  ## detection model
+    for(i in 1:nobs){
+
+        p[species[i],site[i],year[i]] <- 1-pow(1-r[species[i]], N[ species[i],site[i],year[i] ])
+        y[i] ~ dbin(p[species[i],site[i],year[i]], trials[i])
+        
+        }#i
+
+    
+    # derived parameters
+    # PA-level population abundance per year
+    for(i in 1:nsp){
+      for (k in 1:nyear){
+        Nhat[i,k] <- sum(N[i,1:nsite,k])
+      }#t
+    #for (k in 2:nyear){
+    #  growth_rate[i,k] <- Nhat[i,k]/(Nhat[i,k-1])
+    #}#k
+      
+    }#i
+
+
+}
