@@ -7,6 +7,8 @@ Em seguida, os dados são inseridos em um modelo populacional Bernoulli-Poisson 
 
 Estas estimativas populacionais podem ser usadas na produção de índices agregados de tendências de biodiversidade, como o Living Planet Index - LPI, e outros.
 
+<img src="03_saida/abundances.png" title="Relative abundance trends" width="500">
+
 
 ## Estrutura do diretório
 
