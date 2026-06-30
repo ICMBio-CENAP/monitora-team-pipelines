@@ -4,6 +4,7 @@
 .Ruserdata
 *.rds
 *.RDS
+*.txt
 *.csv
 *.xlsx
 github-token.R
