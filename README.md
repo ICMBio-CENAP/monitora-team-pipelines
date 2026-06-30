@@ -3,9 +3,9 @@ Workflow para construir produtos de dados do programa Monitora, protocolo TEAM. 
 
 Primeiramente, os dados passam por um controle de qualidade, visando garantir sua consistência em termos de formatos de data e hora, coordenadas espaciais e taxonomia, de forma a se tornarem dados utilizáveis para EBV ("EBV-usable data sets").
 
-Em seguida, os dados são inseridos em um modelo populacional Bernoulli-Poisson (BernP, também conhecido como Royle-Nichols) para se tornarem dados compatíveis com EBV ("EBV-ready data"). Mais especificamente, o  modelo estima a abundância relativa das populações, o que equivale à EBV "abundância de espécies" (classe de EBV "populações de espécies").
+Em seguida, os dados são inseridos em um modelo populacional Bernoulli-Poisson (BernP, também conhecido como Royle-Nichols) para se tornarem dados compatíveis com EBV ("EBV-ready data"). Mais especificamente, o  modelo estima a abundância relativa das populações, o que equivale à EBV "abundância de espécies" (classe de EBV "populações de espécies", [Jetz et al., 2019](https://www.nature.com/articles/s41559-019-0826-1)).
 
-Estes dados podem ser usados na produção de índices agregados de tendências de biodiversidade, como o Living Planet Index - LPI, e outros.
+Estas estimativas populacionais podem ser usadas na produção de índices agregados de tendências de biodiversidade, como o Living Planet Index - LPI, e outros.
 
 
 ## Estrutura do diretório
