@@ -138,7 +138,7 @@ model {
   # fit model
   out <- jags(jags_data, inits=NULL, parameters,
               "02_scripts/BernP_model.txt",
-              n.chain=3, n.burnin=10000, n.iter=30000, n.thin=250)
+              n.chain=3, n.burnin=25000, n.iter=50000, n.thin=250)
   #n.chain=3, n.burnin=1500, n.iter=5000, n.thin=15)
   #n.chain=3, n.burnin=25000, n.iter=50000, n.thin=100)
   #n.chain=3, n.burnin=50000, n.iter=150000, n.thin=100)

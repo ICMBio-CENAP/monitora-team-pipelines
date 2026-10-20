@@ -9,27 +9,40 @@ source("02_scripts/00_setup.R")
 
 # read pre-processed data
 gurupi <- readRDS("01_entrada/dados_processados/BernP_data_gurupi.rds")
+tdm <- readRDS("01_entrada/dados_processados/BernP_data_tdm.rds")
 jamari <- readRDS("01_entrada/dados_processados/BernP_data_jamari.rds")
 juruena <- readRDS("01_entrada/dados_processados/BernP_data_juruena.rds")
 maraca <- readRDS("01_entrada/dados_processados/BernP_data_maraca.rds")
-tdm <- readRDS("01_entrada/dados_processados/BernP_data_tdm.rds")
+tumucumaque <- readRDS("01_entrada/dados_processados/BernP_data_tumucumaque.rds")
+tapajos <- readRDS("01_entrada/dados_processados/BernP_data_tapajos.rds")
+caxiuana <- readRDS("01_entrada/dados_processados/BernP_data_caxiuana.rds")
+jari <- readRDS("01_entrada/dados_processados/BernP_data_jari.rds")
 
 
 # fit BernP model
 out_gurupi <- fit_BernP(gurupi, 2016, 2025)
+out_tdm <- fit_BernP(tdm, 2016, 2023)
 out_jamari <- fit_BernP(jamari, 2016, 2024)
 out_juruena <- fit_BernP(juruena, 2016, 2024)
 out_maraca <- fit_BernP(maraca, 2018, 2021)
-out_tdm <- fit_BernP(tdm, 2016, 2023)
+out_tumucumaque <- fit_BernP(tumucumaque, 2021, 2025)
+out_tapajos <- fit_BernP(tapajos, 2022, 2025)
+out_caxiuana <- fit_BernP(caxiuana, 2023, 2025)
+out_jari <- fit_BernP(jari, 2024, 2025)
 
 
 
 # save results
 saveRDS(out_gurupi, "03_saida/model_gurupi.rds")
+saveRDS(out_tdm, "03_saida/model_tdm")
 saveRDS(out_jamari, "03_saida/model_jamari.rds")
 saveRDS(out_juruena, "03_saida/model_juruena.rds")
 saveRDS(out_maraca, "03_saida/model_maraca.rds")
-saveRDS(out_tdm, "03_saida/model_tdm")
+saveRDS(out_tumucumaque, "03_saida/model_tumucumaque.rds")
+saveRDS(out_tapajos, "03_saida/model_tapajos.rds")
+saveRDS(out_caxiuana, "03_saida/model_caxiuana.rds")
+saveRDS(out_jari, "03_saida/model_jari.rds")
+
 
 
 
@@ -130,3 +143,4 @@ N <- tibble(especie = unique(gurupi$species),
                        .default = NA)) %>%
   select(-amostrado) %>%
   print()
+
